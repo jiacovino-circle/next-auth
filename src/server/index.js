@@ -202,25 +202,35 @@ async function NextAuthHandler (req, res, userOptions) {
         case 'signin':
           // Verified CSRF Token required for all sign in routes
           if (req.options.csrfTokenVerified && provider) {
+            console.log("DEBUGGING src/server/index.js", "case: signin | success")
+            
             if (await pkce.handleSignin(req, res)) return
             if (await state.handleSignin(req, res)) return
             return routes.signin(req, res)
           }
+          console.log("DEBUGGING src/server/index.js", "case: signin | error-redirect")
 
           return res.redirect(`${baseUrl}${basePath}/signin?csrf=true`)
         case 'signout':
           // Verified CSRF Token required for signout
           if (req.options.csrfTokenVerified) {
+            console.log("DEBUGGING src/server/index.js", "case: signout | success")
+
             return routes.signout(req, res)
           }
+
+          console.log("DEBUGGING src/server/index.js", "case: signout | error-redirect")
           return res.redirect(`${baseUrl}${basePath}/signout?csrf=true`)
         case 'callback':
           if (provider) {
             // Verified CSRF Token required for credentials providers only
             if (provider.type === 'credentials' && !req.options.csrfTokenVerified) {
+              console.log("DEBUGGING src/server/index.js", "case: callback | error-redirect")
+              
               return res.redirect(`${baseUrl}${basePath}/signin?csrf=true`)
             }
 
+            console.log("DEBUGGING src/server/index.js", "case: callback | success")
             if (await pkce.handleCallback(req, res)) return
             if (await state.handleCallback(req, res)) return
             return routes.callback(req, res)

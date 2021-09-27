@@ -19,9 +19,19 @@ import * as cookie from './cookie'
  */
 export default function csrfTokenHandler (req, res) {
   const { cookies, secret } = req.options
+  console.log("DEBUGGING csrfTokenHandler()")
   if (cookies.csrfToken.name in req.cookies) {
+    console.log("DEBUGGING csrfTokenHandler()", "cookies.csrfToken.name IS in req.cookies")
+
     const [csrfToken, csrfTokenHash] = req.cookies[cookies.csrfToken.name].split('|')
+
+    console.log("DEBUGGING csrfTokenHandler(): csrfToken", csrfToken)
+    console.log("DEBUGGING csrfTokenHandler(): csrfTokenHash", csrfTokenHash)
+
     const expectedCsrfTokenHash = createHash('sha256').update(`${csrfToken}${secret}`).digest('hex')
+
+    console.log("DEBUGGING csrfTokenHandler(): expectedCsrfTokenHash", expectedCsrfTokenHash)
+
     if (csrfTokenHash === expectedCsrfTokenHash) {
       // If hash matches then we trust the CSRF token value
       // If this is a POST request and the CSRF Token in the POST request matches
@@ -29,12 +39,17 @@ export default function csrfTokenHandler (req, res) {
       const csrfTokenVerified = req.method === 'POST' && csrfToken === req.body.csrfToken
       req.options.csrfToken = csrfToken
       req.options.csrfTokenVerified = csrfTokenVerified
+
+      console.log("DEBUGGING csrfTokenHandler(): csrfTokenVerified", csrfTokenVerified)
+
       return
     }
   }
   // If no csrfToken from cookie - because it's not been set yet,
   // or because the hash doesn't match (e.g. because it's been modifed or because the secret has changed)
   // create a new token.
+  console.log("DEBUGGING csrfTokenHandler()", "If no csrfToken from cookie - because it's not been set yet, or because the hash doesn't match (e.g. because it's been modifed or because the secret has changed) create a new token.")
+
   const csrfToken = randomBytes(32).toString('hex')
   const csrfTokenHash = createHash('sha256').update(`${csrfToken}${secret}`).digest('hex')
   const csrfTokenCookie = `${csrfToken}|${csrfTokenHash}`

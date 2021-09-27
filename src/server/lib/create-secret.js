@@ -7,6 +7,7 @@ import { createHash } from 'crypto'
  * OAuth provider secrets and database credentials it should be sufficent.
  */
 export default function createSecret ({ userOptions, basePath, baseUrl }) {
+  console.log("DEBUGGING createSecret()", JSON.stringify({ userOptions, basePath, baseUrl }))
   return userOptions.secret || createHash('sha256').update(JSON.stringify({
     baseUrl, basePath, ...userOptions
   })).digest('hex')
